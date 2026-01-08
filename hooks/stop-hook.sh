@@ -127,8 +127,12 @@ else
   SYSTEM_MSG="🔄 Ralph iteration $NEXT_ITERATION | No completion promise set - loop runs infinitely"
 fi
 
-# Construct a user-friendly block reason that also preserves the prompt for the agent
-BLOCK_REASON="[Ralph Loop] Iteration $NEXT_ITERATION. Continuing task: $PROMPT_TEXT"
+# Construct user-friendly block reason
+if [[ $MAX_ITERATIONS -gt 0 ]]; then
+  BLOCK_REASON="[Ralph Loop] Iteration $NEXT_ITERATION of $MAX_ITERATIONS. Continuing task..."
+else
+  BLOCK_REASON="[Ralph Loop] Iteration $NEXT_ITERATION. Continuing task..."
+fi
 
 log "Feeding prompt back to agent via BLOCK decision."
 

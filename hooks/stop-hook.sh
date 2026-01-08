@@ -127,16 +127,19 @@ else
   SYSTEM_MSG="🔄 Ralph iteration $NEXT_ITERATION | No completion promise set - loop runs infinitely"
 fi
 
+# Construct a user-friendly block reason that also preserves the prompt for the agent
+BLOCK_REASON="[Ralph Loop] Iteration $NEXT_ITERATION. Continuing task: $PROMPT_TEXT"
+
 log "Feeding prompt back to agent via BLOCK decision."
 
 # We block the agent's attempt to stop.
-# The 'reason' field is fed back to the agent, effectively providing the prompt again.
+# The 'reason' field is displayed to the user in the CLI warning AND fed back to the agent.
 output_json \
-  --arg prompt "$PROMPT_TEXT" \
+  --arg reason "$BLOCK_REASON" \
   --arg msg "$SYSTEM_MSG" \
   '{
     "decision": "block",
-    "reason": $prompt,
+    "reason": $reason,
     "systemMessage": $msg
   }'
 

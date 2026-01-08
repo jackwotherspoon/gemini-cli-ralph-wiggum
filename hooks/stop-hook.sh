@@ -137,10 +137,11 @@ fi
 log "Feeding prompt back to agent via BLOCK decision."
 
 # We block the agent's attempt to stop.
-# The 'reason' field is displayed to the user in the CLI warning AND fed back to the agent.
+# 'reason': Displayed to User (UI) -> Short Status
+# 'systemMessage': Sent to Agent (Context) -> Original Prompt
 output_json \
   --arg reason "$BLOCK_REASON" \
-  --arg msg "$SYSTEM_MSG" \
+  --arg msg "$PROMPT_TEXT" \
   '{
     "decision": "block",
     "reason": $reason,

@@ -10,7 +10,12 @@ The technique is named after Ralph Wiggum from The Simpsons, embodying the philo
 
 ### Core Concept
 
-This extension implements Ralph using an `AfterAgent` stop hook that intercepts the agent's exit attempts:
+This extension implements Ralph using an `AfterAgent` stop hook that intercepts the agent's exit attempts. It creates a **self-referential feedback loop** where:
+
+- The prompt never changes between iterations.
+- Gemini's previous work persists in files.
+- Each iteration sees modified files and git history.
+- Gemini autonomously improves by reading its own past work in files.
 
 ```bash
 # You run ONCE:
@@ -20,20 +25,15 @@ This extension implements Ralph using an `AfterAgent` stop hook that intercepts 
 # 1. Works on the task
 # 2. Tries to exit
 # 3. Stop hook blocks exit
-# 4. Stop hook feeds the SAME prompt back as additional context
+# 4. Stop hook feeds the SAME prompt back
 # 5. Repeat until completion
 ```
 
-The loop happens **inside your current session** - you don't need external bash loops. The Stop hook in `hooks/stop-hook.sh` creates the self-referential feedback loop by blocking normal session exit and re-injecting the original prompt.
-
 ## Installation
 
-1.  Navigate to this directory.
-2.  Link the extension to your Gemini CLI:
-    ```bash
-    gemini extensions link .
-    ```
-3.  Restart Gemini CLI.
+```bash
+gemini extensions install https://github.com/jackwotherspoon/gemini-cli-ralph-wiggum
+```
 
 ## Quick Start
 
@@ -73,11 +73,77 @@ Cancel the active Ralph loop (removes the state file).
 /cancel-ralph
 ```
 
-## How It Works (Technical Details)
+## Prompt Writing Best Practices
 
-- **State Persistence**: State is stored in `$GEMINI_PROJECT_DIR/.gemini/ralph-state.json`.
-- **Looping Mechanism**: Uses the `AfterAgent` hook. It increments the iteration count in the state file and returns a `decision: "block"` with the original prompt in the `reason` field to force the model to continue.
-- **Completion Detection**: The hook scans the model's `prompt_response` for `<promise>TEXT</promise>`. If it matches the configured promise, the state file is deleted and the loop stops.
+### 1. Clear Completion Criteria
+
+❌ Bad: "Build a todo API and make it good."
+
+✅ Good:
+```markdown
+Build a REST API for todos.
+
+When complete:
+- All CRUD endpoints working
+- Input validation in place
+- Tests passing (coverage > 80%)
+- README with API docs
+- Output: <promise>COMPLETE</promise>
+```
+
+### 2. Incremental Goals
+
+❌ Bad: "Create a complete e-commerce platform."
+
+✅ Good:
+```markdown
+Phase 1: User authentication (JWT, tests)
+Phase 2: Product catalog (list/search, tests)
+Phase 3: Shopping cart (add/remove, tests)
+
+Output <promise>COMPLETE</promise> when all phases done.
+```
+
+### 3. Self-Correction
+
+❌ Bad: "Write code for feature X."
+
+✅ Good:
+```markdown
+Implement feature X following TDD:
+1. Write failing tests
+2. Implement feature
+3. Run tests
+4. If any fail, debug and fix
+5. Refactor if needed
+6. Repeat until all green
+7. Output: <promise>COMPLETE</promise>
+```
+
+### 4. Escape Hatches
+
+Always use `--max-iterations` as a safety net to prevent infinite loops on impossible tasks:
+
+```bash
+# Recommended: Always set a reasonable iteration limit
+/ralph-loop "Try to implement feature X" --max-iterations 20
+```
+
+**Note**: The `--completion-promise` uses exact string matching, so you cannot use it for multiple completion conditions (like "SUCCESS" vs "BLOCKED"). Always rely on `--max-iterations` as your primary safety mechanism.
+
+## When to Use Ralph
+
+**Good for:**
+- Well-defined tasks with clear success criteria.
+- Tasks requiring iteration and refinement (e.g., getting tests to pass).
+- Greenfield projects where you can walk away.
+- Tasks with automatic verification (tests, linters).
+
+**Not good for:**
+- Tasks requiring human judgment or design decisions.
+- One-shot operations.
+- Tasks with unclear success criteria.
+- Production debugging (use targeted debugging instead).
 
 ## Philosophy
 
@@ -88,7 +154,15 @@ Ralph embodies several key principles:
 3.  **Operator Skill Matters**: Success depends on writing good prompts, not just having a good model.
 4.  **Persistence Wins**: Keep trying until success. The loop handles retry logic automatically.
 
+## Real-World Context
+
+The Ralph Wiggum technique has been shown to be effective for autonomous development:
+- Successfully generated multiple repositories overnight in hackathon settings.
+- Enables "set and forget" development for well-scoped tasks.
+- Demonstrates that persistence and self-correction can overcome single-shot model limitations.
+
 ## Learn More
 
 - Original technique: [https://ghuntley.com/ralph/](https://ghuntley.com/ralph/)
 - Ralph Orchestrator: [https://github.com/mikeyobrien/ralph-orchestrator](https://github.com/mikeyobrien/ralph-orchestrator)
+- Inspired by the Claude Code Plugin: [https://github.com/anthropics/claude-code/tree/main/plugins/ralph-wiggum](https://github.com/anthropics/claude-code/tree/main/plugins/ralph-wiggum)

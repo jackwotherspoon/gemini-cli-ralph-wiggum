@@ -62,7 +62,7 @@ Start a Ralph loop in your current session.
 **Options:**
 - `--max-iterations <n>` - Stop after N iterations (default: unlimited).
 - `--completion-promise <text>` - Phrase that signals completion. Must be wrapped in `<promise>` tags in the model's output.
-- `--debug` - Enable debug logging to `$GEMINI_PROJECT_DIR/.gemini/ralph-debug.log`.
+- `--debug` - Enable debug logging to the project's `.gemini/ralph-debug.log`.
 
 ### `/cancel-ralph`
 

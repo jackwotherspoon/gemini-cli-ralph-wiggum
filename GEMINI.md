@@ -32,6 +32,7 @@ Start a Ralph loop in your current session.
 **Options:**
 - `--max-iterations <n>` - Max iterations before auto-stop.
 - `--completion-promise <text>` - Promise phrase to signal completion.
+- `--debug` - Enable debug logging (saved to `.gemini/ralph-debug.log`).
 
 **How it works:**
 1. Creates `.gemini/ralph-state.json` state file.

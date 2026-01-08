@@ -134,10 +134,10 @@ log "Feeding prompt back to agent via BLOCK decision."
 output_json \
   --arg prompt "$PROMPT_TEXT" \
   --arg msg "$SYSTEM_MSG" \
-  '{ \
-    "decision": "block", \
-    "reason": $prompt, \
-    "systemMessage": $msg \
+  '{
+    "decision": "block",
+    "reason": $prompt,
+    "systemMessage": $msg
   }'
 
 exit 0

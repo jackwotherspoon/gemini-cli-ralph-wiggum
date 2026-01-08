@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "AfterAgent": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "name": "ralph-stop-hook",
+            "type": "command",
+            "command": "${extensionPath}/hooks/stop-hook.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

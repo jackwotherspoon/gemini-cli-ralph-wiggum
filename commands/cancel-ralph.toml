@@ -1,0 +1,13 @@
+description = "Cancel active Ralph Wiggum loop"
+prompt = """
+To cancel the Ralph loop:
+
+1. Check if `$GEMINI_PROJECT_DIR/.gemini/ralph-state.json` exists using Bash.
+
+2. **If NOT_FOUND**: Say "No active Ralph loop found."
+
+3. **If EXISTS**:
+   - Read `$GEMINI_PROJECT_DIR/.gemini/ralph-state.json` to get the current iteration number (e.g. using `jq -r .iteration ...`).
+   - Remove the file using Bash: `rm "$GEMINI_PROJECT_DIR/.gemini/ralph-state.json"`
+   - Report: "Cancelled Ralph loop (was at iteration N)"
+"""

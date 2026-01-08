@@ -12,6 +12,11 @@ STATE_FILE="$STATE_DIR/ralph-state.json"
 DEBUG_LOG="$STATE_DIR/ralph-debug.log"
 
 # Parse arguments
+# Handle case where all args are passed as a single string (e.g. from Gemini CLI {{args}})
+if [[ $# -eq 1 ]]; then
+  eval set -- $1
+fi
+
 PROMPT_PARTS=()
 MAX_ITERATIONS=0
 COMPLETION_PROMISE="null"

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Ralph Wiggum Stop Hook (Adapted for Gemini CLI)
+# Ralph Wiggum AfterAgent Stop Hook
 # Prevents session exit when a ralph-loop is active
 # Feeds output back as input to continue the loop
 
@@ -129,9 +129,9 @@ fi
 
 # Construct user-friendly block reason
 if [[ $MAX_ITERATIONS -gt 0 ]]; then
-  BLOCK_REASON="[Ralph Loop] Iteration $NEXT_ITERATION of $MAX_ITERATIONS. Continuing task..."
+  BLOCK_REASON="[Ralph Loop] Iteration $NEXT_ITERATION of $MAX_ITERATIONS..."
 else
-  BLOCK_REASON="[Ralph Loop] Iteration $NEXT_ITERATION. Continuing task..."
+  BLOCK_REASON="[Ralph Loop] Iteration $NEXT_ITERATION."
 fi
 
 log "Feeding prompt back to agent via BLOCK decision."
@@ -139,13 +139,15 @@ log "Feeding prompt back to agent via BLOCK decision."
 # We block the agent's attempt to stop.
 # 'reason': Sent to Agent (Context) -> Original Prompt
 # 'systemMessage': Displayed to User (UI) -> Short Status
+# 'hookSpecificOutput': Tells the hook to clear context between iterations.
 output_json \
   --arg reason "$PROMPT_TEXT" \
   --arg msg "$BLOCK_REASON" \
   '{
     "decision": "block",
     "reason": $reason,
-    "systemMessage": $msg
+    "systemMessage": $msg,
+    "hookSpecificOutput": {"hookEventName": "AfterAgent", "clearContext": true}
   }'
 
 exit 0
